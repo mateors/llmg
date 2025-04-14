@@ -23,6 +23,21 @@ type LLM struct {
 
 var _ llms.Model = (*LLM)(nil)
 
+// New creates a new ollama LLM implementation.
+func New(opts ...Option) (*LLM, error) {
+	o := options{}
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	client, err := ollamaclient.NewClient(o.ollamaServerURL, o.httpClient)
+	if err != nil {
+		return nil, err
+	}
+
+	return &LLM{client: client, options: o}, nil
+}
+
 // GenerateContent implements the Model interface.
 // nolint: goerr113
 func (o *LLM) GenerateContent(ctx context.Context, messages []llms.MessageContent, options ...llms.CallOption) (*llms.ContentResponse, error) { // nolint: lll, cyclop, funlen

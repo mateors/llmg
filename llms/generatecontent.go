@@ -5,6 +5,11 @@ type MessageContent struct {
 	Parts []ContentPart
 }
 
+// TextPart creates TextContent from a given string.
+func TextPart(s string) TextContent {
+	return TextContent{Text: s}
+}
+
 // ContentPart is an interface all parts of content have to implement.
 type ContentPart interface {
 	isPart()
@@ -70,3 +75,16 @@ type ToolCall struct {
 }
 
 func (ToolCall) isPart() {}
+
+// TextParts is a helper function to create a MessageContent with a role and a
+// list of text parts.
+func TextParts(role ChatMessageType, parts ...string) MessageContent {
+	result := MessageContent{
+		Role:  role,
+		Parts: []ContentPart{},
+	}
+	for _, part := range parts {
+		result.Parts = append(result.Parts, TextPart(part))
+	}
+	return result
+}

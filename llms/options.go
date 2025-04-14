@@ -101,9 +101,39 @@ const (
 	FunctionCallBehaviorAuto FunctionCallBehavior = "auto"
 )
 
+// WithModel specifies which model name to use.
+func WithModel(model string) CallOption {
+	return func(o *CallOptions) {
+		o.Model = model
+	}
+}
+
 // WithOptions specifies options.
 func WithOptions(options CallOptions) CallOption {
 	return func(o *CallOptions) {
 		(*o) = options
+	}
+}
+
+// WithStreamingFunc specifies the streaming function to use.
+func WithStreamingFunc(streamingFunc func(ctx context.Context, chunk []byte) error) CallOption {
+	return func(o *CallOptions) {
+		o.StreamingFunc = streamingFunc
+	}
+}
+
+// WithToolChoice will add an option to set the choice of tool to use.
+// It can either be "none", "auto" (the default behavior), or a specific tool as described in the ToolChoice type.
+func WithToolChoice(choice any) CallOption {
+	// TODO: Add type validation for choice.
+	return func(o *CallOptions) {
+		o.ToolChoice = choice
+	}
+}
+
+// WithTools will add an option to set the tools to use.
+func WithTools(tools []Tool) CallOption {
+	return func(o *CallOptions) {
+		o.Tools = tools
 	}
 }
