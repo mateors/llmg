@@ -2,7 +2,8 @@ package callbacks
 
 import (
 	"context"
-	"llmg/llms"
+
+	"github.com/mateors/llmg/llms"
 )
 
 // Handler is the interface that allows for hooking into specific parts of an

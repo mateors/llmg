@@ -1,9 +1,10 @@
 package ollama
 
 import (
-	"llmg/llms/ollama/internal/ollamaclient"
 	"net/http"
 	"net/url"
+
+	"github.com/mateors/llmg/llms/ollama/internal/ollamaclient"
 )
 
 type options struct {

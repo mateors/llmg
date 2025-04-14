@@ -3,9 +3,10 @@ package ollama
 import (
 	"context"
 	"errors"
-	"llmg/callbacks"
-	"llmg/llms"
-	"llmg/llms/ollama/internal/ollamaclient"
+
+	"github.com/mateors/llmg/callbacks"
+	"github.com/mateors/llmg/llms"
+	"github.com/mateors/llmg/llms/ollama/internal/ollamaclient"
 )
 
 var (
