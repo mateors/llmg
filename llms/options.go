@@ -108,6 +108,14 @@ func WithModel(model string) CallOption {
 	}
 }
 
+// WithTemperature specifies the model temperature, a hyperparameter that
+// regulates the randomness, or creativity, of the AI's responses.
+func WithTemperature(temperature float64) CallOption {
+	return func(o *CallOptions) {
+		o.Temperature = temperature
+	}
+}
+
 // WithOptions specifies options.
 func WithOptions(options CallOptions) CallOption {
 	return func(o *CallOptions) {
