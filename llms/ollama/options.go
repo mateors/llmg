@@ -28,6 +28,13 @@ func WithModel(model string) Option {
 	}
 }
 
+// WithFormat Sets the Ollama output format (currently Ollama only supports "json").
+func WithFormat(format string) Option {
+	return func(opts *options) {
+		opts.format = format
+	}
+}
+
 // WithServerURL Set the URL of the ollama instance to use.
 func WithServerURL(rawURL string) Option {
 	return func(opts *options) {
