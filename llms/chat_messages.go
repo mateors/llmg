@@ -30,3 +30,26 @@ type ChatMessage interface {
 	// GetContent gets the content of the message.
 	GetContent() string
 }
+
+// Named is an interface for objects that have a name.
+// type Named interface {
+// 	GetName() string
+// }
+
+// Statically assert that the types implement the interface.
+var (
+	//_ ChatMessage = AIChatMessage{}
+	_ ChatMessage = HumanChatMessage{}
+	//_ ChatMessage = SystemChatMessage{}
+	//_ ChatMessage = GenericChatMessage{}
+	//_ ChatMessage = FunctionChatMessage{}
+	//_ ChatMessage = ToolChatMessage{}
+)
+
+// HumanChatMessage is a message sent by a human.
+type HumanChatMessage struct {
+	Content string
+}
+
+func (m HumanChatMessage) GetType() ChatMessageType { return ChatMessageTypeHuman }
+func (m HumanChatMessage) GetContent() string       { return m.Content }
