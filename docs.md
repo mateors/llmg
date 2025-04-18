@@ -1,4 +1,5 @@
-# Comprehensive Documentation for LLMG (Large Language Model Gateway)
+# Comprehensive Documentation for LLMG 
+LLMG Stands for Large Language Model Gateway
 
 ## Overview
 
