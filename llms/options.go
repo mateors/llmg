@@ -173,3 +173,31 @@ func WithSeed(seed int) CallOption {
 		o.Seed = seed
 	}
 }
+
+// WithStopWords specifies a list of words to stop generation on.
+func WithStopWords(stopWords []string) CallOption {
+	return func(o *CallOptions) {
+		o.StopWords = stopWords
+	}
+}
+
+// WithMinLength will add an option to set the minimum length of the generated text.
+func WithMinLength(minLength int) CallOption {
+	return func(o *CallOptions) {
+		o.MinLength = minLength
+	}
+}
+
+// WithMaxLength will add an option to set the maximum length of the generated text.
+func WithMaxLength(maxLength int) CallOption {
+	return func(o *CallOptions) {
+		o.MaxLength = maxLength
+	}
+}
+
+// WithRepetitionPenalty will add an option to set the repetition penalty for sampling.
+func WithRepetitionPenalty(repetitionPenalty float64) CallOption {
+	return func(o *CallOptions) {
+		o.RepetitionPenalty = repetitionPenalty
+	}
+}

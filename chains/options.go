@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/mateors/llmg/callbacks"
+	"github.com/mateors/llmg/llms"
 )
 
 // ChainCallOption is a function that can be used to modify the behavior of the Call function.
@@ -72,4 +73,53 @@ func WithModel(model string) ChainCallOption {
 		o.Model = model
 		o.modelSet = true
 	}
+}
+
+func getLLMCallOptions(options ...ChainCallOption) []llms.CallOption { //nolint:cyclop
+	opts := &chainCallOption{}
+	for _, option := range options {
+		option(opts)
+	}
+	if opts.StreamingFunc == nil && opts.CallbackHandler != nil {
+		opts.StreamingFunc = func(ctx context.Context, chunk []byte) error {
+			opts.CallbackHandler.HandleStreamingFunc(ctx, chunk)
+			return nil
+		}
+	}
+
+	var chainCallOption []llms.CallOption
+
+	if opts.modelSet {
+		chainCallOption = append(chainCallOption, llms.WithModel(opts.Model))
+	}
+	if opts.maxTokensSet {
+		chainCallOption = append(chainCallOption, llms.WithMaxTokens(opts.MaxTokens))
+	}
+	if opts.temperatureSet {
+		chainCallOption = append(chainCallOption, llms.WithTemperature(opts.Temperature))
+	}
+	if opts.stopWordsSet {
+		chainCallOption = append(chainCallOption, llms.WithStopWords(opts.StopWords))
+	}
+	if opts.topkSet {
+		chainCallOption = append(chainCallOption, llms.WithTopK(opts.TopK))
+	}
+	if opts.toppSet {
+		chainCallOption = append(chainCallOption, llms.WithTopP(opts.TopP))
+	}
+	if opts.seedSet {
+		chainCallOption = append(chainCallOption, llms.WithSeed(opts.Seed))
+	}
+	if opts.minLengthSet {
+		chainCallOption = append(chainCallOption, llms.WithMinLength(opts.MinLength))
+	}
+	if opts.maxLengthSet {
+		chainCallOption = append(chainCallOption, llms.WithMaxLength(opts.MaxLength))
+	}
+	if opts.repetitionPenaltySet {
+		chainCallOption = append(chainCallOption, llms.WithRepetitionPenalty(opts.RepetitionPenalty))
+	}
+	chainCallOption = append(chainCallOption, llms.WithStreamingFunc(opts.StreamingFunc))
+
+	return chainCallOption
 }

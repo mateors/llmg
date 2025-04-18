@@ -22,3 +22,11 @@ const (
 	// ChatMessageTypeTool is a message sent by a tool.
 	ChatMessageTypeTool ChatMessageType = "tool"
 )
+
+// ChatMessage represents a message in a chat.
+type ChatMessage interface {
+	// GetType gets the type of the message.
+	GetType() ChatMessageType
+	// GetContent gets the content of the message.
+	GetContent() string
+}
