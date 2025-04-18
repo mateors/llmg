@@ -145,3 +145,31 @@ func WithTools(tools []Tool) CallOption {
 		o.Tools = tools
 	}
 }
+
+// WithMaxTokens specifies the max number of tokens to generate.
+func WithMaxTokens(maxTokens int) CallOption {
+	return func(o *CallOptions) {
+		o.MaxTokens = maxTokens
+	}
+}
+
+// WithTopK will add an option to use top-k sampling.
+func WithTopK(topK int) CallOption {
+	return func(o *CallOptions) {
+		o.TopK = topK
+	}
+}
+
+// WithTopP	will add an option to use top-p sampling.
+func WithTopP(topP float64) CallOption {
+	return func(o *CallOptions) {
+		o.TopP = topP
+	}
+}
+
+// WithSeed will add an option to use deterministic sampling.
+func WithSeed(seed int) CallOption {
+	return func(o *CallOptions) {
+		o.Seed = seed
+	}
+}

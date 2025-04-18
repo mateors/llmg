@@ -82,8 +82,8 @@ func (o *LLM) GenerateContent(ctx context.Context, messages []llms.MessageConten
 				}
 				foundText = true
 				text = pt.Text
-			//case llms.BinaryContent:
-			//images = append(images, ollamaclient.ImageData(pt.Data))
+			case llms.BinaryContent:
+				images = append(images, ollamaclient.ImageData(pt.Data))
 			default:
 				return nil, errors.New("only support Text and BinaryContent parts right now")
 			}

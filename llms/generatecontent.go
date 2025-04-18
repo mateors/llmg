@@ -1,5 +1,7 @@
 package llms
 
+import "encoding/base64"
+
 type MessageContent struct {
 	Role  ChatMessageType
 	Parts []ContentPart
@@ -8,6 +10,15 @@ type MessageContent struct {
 // TextPart creates TextContent from a given string.
 func TextPart(s string) TextContent {
 	return TextContent{Text: s}
+}
+
+// BinaryPart creates a new BinaryContent from the given MIME type (e.g.
+// "image/png" and binary data).
+func BinaryPart(mime string, data []byte) BinaryContent {
+	return BinaryContent{
+		MIMEType: mime,
+		Data:     data,
+	}
 }
 
 // ContentPart is an interface all parts of content have to implement.
@@ -88,3 +99,28 @@ func TextParts(role ChatMessageType, parts ...string) MessageContent {
 	}
 	return result
 }
+
+// ImageURLContent is content with an URL pointing to an image.
+type ImageURLContent struct {
+	URL    string `json:"url"`
+	Detail string `json:"detail,omitempty"` // Detail is the detail of the image, e.g. "low", "high".
+}
+
+func (iuc ImageURLContent) String() string {
+	return iuc.URL
+}
+
+func (ImageURLContent) isPart() {}
+
+// BinaryContent is content holding some binary data with a MIME type.
+type BinaryContent struct {
+	MIMEType string
+	Data     []byte
+}
+
+func (bc BinaryContent) String() string {
+	base64Encoded := base64.StdEncoding.EncodeToString(bc.Data)
+	return "data:" + bc.MIMEType + ";base64," + base64Encoded
+}
+
+func (BinaryContent) isPart() {}
