@@ -5,6 +5,7 @@ go 1.24.2
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/nikolalohinski/gonja v1.5.3
+	go.starlark.net v0.0.0-20250417143717-f57e51f710eb
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 )
 
