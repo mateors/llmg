@@ -8,6 +8,7 @@ import (
 	"github.com/mateors/llmg/tools"
 	"go.starlark.net/lib/math"
 	"go.starlark.net/starlark"
+	"go.starlark.net/syntax"
 )
 
 // Calculator is a tool that can do math.
@@ -31,12 +32,34 @@ func (c Calculator) Name() string {
 // Call evaluates the input using a starlak evaluator and returns the result as a
 // string. If the evaluator errors the error is given in the result to give the
 // agent the ability to retry.
-func (c Calculator) Call(ctx context.Context, input string) (string, error) {
+func (c Calculator) Call2(ctx context.Context, input string) (string, error) {
 	if c.CallbacksHandler != nil {
 		c.CallbacksHandler.HandleToolStart(ctx, input)
 	}
 
+	//starlark.EvalOptions(&syntax.FileOptions{})
 	v, err := starlark.Eval(&starlark.Thread{Name: "main"}, "input", input, math.Module.Members)
+	if err != nil {
+		return fmt.Sprintf("error from evaluator: %s", err.Error()), nil //nolint:nilerr
+	}
+	result := v.String()
+
+	if c.CallbacksHandler != nil {
+		c.CallbacksHandler.HandleToolEnd(ctx, result)
+	}
+
+	return result, nil
+}
+
+func (c Calculator) Call(ctx context.Context, input string) (string, error) {
+
+	if c.CallbacksHandler != nil {
+		c.CallbacksHandler.HandleToolStart(ctx, input)
+	}
+
+	thread := &starlark.Thread{Name: "main"}
+	opts := &syntax.FileOptions{} // Create FileOptions as mentioned in deprecation notice
+	v, err := starlark.EvalOptions(opts, thread, "input", input, math.Module.Members)
 	if err != nil {
 		return fmt.Sprintf("error from evaluator: %s", err.Error()), nil //nolint:nilerr
 	}
