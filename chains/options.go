@@ -123,3 +123,25 @@ func getLLMCallOptions(options ...ChainCallOption) []llms.CallOption { //nolint:
 
 	return chainCallOption
 }
+
+// WithStopWords is an option for setting the stop words for LLM.Call.
+func WithStopWords(stopWords []string) ChainCallOption {
+	return func(o *chainCallOption) {
+		o.StopWords = stopWords
+		o.stopWordsSet = true
+	}
+}
+
+// WithCallback allows setting a custom Callback Handler.
+func WithCallback(callbackHandler callbacks.Handler) ChainCallOption {
+	return func(o *chainCallOption) {
+		o.CallbackHandler = callbackHandler
+	}
+}
+
+// WithStreamingFunc is an option for LLM.Call that allows streaming responses.
+func WithStreamingFunc(streamingFunc func(ctx context.Context, chunk []byte) error) ChainCallOption {
+	return func(o *chainCallOption) {
+		o.StreamingFunc = streamingFunc
+	}
+}

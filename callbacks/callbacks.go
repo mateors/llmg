@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/mateors/llmg/llms"
+	"github.com/mateors/llmg/schema"
 )
 
 // Handler is the interface that allows for hooking into specific parts of an
@@ -22,8 +23,8 @@ type Handler interface {
 	// HandleToolStart(ctx context.Context, input string)
 	// HandleToolEnd(ctx context.Context, output string)
 	// HandleToolError(ctx context.Context, err error)
-	// HandleAgentAction(ctx context.Context, action schema.AgentAction)
-	// HandleAgentFinish(ctx context.Context, finish schema.AgentFinish)
+	HandleAgentAction(ctx context.Context, action schema.AgentAction)
+	HandleAgentFinish(ctx context.Context, finish schema.AgentFinish)
 	// HandleRetrieverStart(ctx context.Context, query string)
 	// HandleRetrieverEnd(ctx context.Context, query string, documents []schema.Document)
 	HandleStreamingFunc(ctx context.Context, chunk []byte)

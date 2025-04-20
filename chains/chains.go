@@ -146,3 +146,23 @@ func getChainCallbackHandler(c Chain) callbacks.Handler {
 	}
 	return nil
 }
+
+// Predict can be used to execute a chain if the chain only expects one string output.
+func Predict(ctx context.Context, c Chain, inputValues map[string]any, options ...ChainCallOption) (string, error) {
+	outputValues, err := Call(ctx, c, inputValues, options...)
+	if err != nil {
+		return "", err
+	}
+
+	outputKeys := c.GetOutputKeys()
+	if len(outputKeys) != 1 {
+		return "", ErrMultipleOutputsInPredict
+	}
+
+	outputValue, ok := outputValues[outputKeys[0]].(string)
+	if !ok {
+		return "", ErrOutputNotStringInPredict
+	}
+
+	return outputValue, nil
+}
