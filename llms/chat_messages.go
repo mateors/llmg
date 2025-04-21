@@ -1,6 +1,11 @@
 package llms
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
+)
 
 type ChatMessageType string
 
@@ -38,13 +43,32 @@ type ChatMessage interface {
 
 // Statically assert that the types implement the interface.
 var (
-	//_ ChatMessage = AIChatMessage{}
+	_ ChatMessage = AIChatMessage{}
 	_ ChatMessage = HumanChatMessage{}
 	//_ ChatMessage = SystemChatMessage{}
-	//_ ChatMessage = GenericChatMessage{}
+	_ ChatMessage = GenericChatMessage{}
 	//_ ChatMessage = FunctionChatMessage{}
 	//_ ChatMessage = ToolChatMessage{}
 )
+
+// AIChatMessage is a message sent by an AI.
+type AIChatMessage struct {
+	// Content is the content of the message.
+	Content string `json:"content,omitempty"`
+
+	// FunctionCall represents the model choosing to call a function.
+	FunctionCall *FunctionCall `json:"function_call,omitempty"`
+
+	// ToolCalls represents the model choosing to call tools.
+	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
+
+	// This field is only used with the deepseek-reasoner model and represents the reasoning contents of the assistant message before the final answer.
+	ReasoningContent string `json:"reasoning_content,omitempty"`
+}
+
+func (m AIChatMessage) GetType() ChatMessageType       { return ChatMessageTypeAI }
+func (m AIChatMessage) GetContent() string             { return m.Content }
+func (m AIChatMessage) GetFunctionCall() *FunctionCall { return m.FunctionCall }
 
 // HumanChatMessage is a message sent by a human.
 type HumanChatMessage struct {
@@ -53,3 +77,60 @@ type HumanChatMessage struct {
 
 func (m HumanChatMessage) GetType() ChatMessageType { return ChatMessageTypeHuman }
 func (m HumanChatMessage) GetContent() string       { return m.Content }
+
+// GenericChatMessage is a chat message with an arbitrary speaker.
+type GenericChatMessage struct {
+	Content string
+	Role    string
+	Name    string
+}
+
+func (m GenericChatMessage) GetType() ChatMessageType { return ChatMessageTypeGeneric }
+func (m GenericChatMessage) GetContent() string       { return m.Content }
+func (m GenericChatMessage) GetName() string          { return m.Name }
+
+// GetBufferString gets the buffer string of messages.
+func GetBufferString(messages []ChatMessage, humanPrefix string, aiPrefix string) (string, error) {
+	result := []string{}
+	for _, m := range messages {
+		role, err := getMessageRole(m, humanPrefix, aiPrefix)
+		if err != nil {
+			return "", err
+		}
+		msg := fmt.Sprintf("%s: %s", role, m.GetContent())
+		if m, ok := m.(AIChatMessage); ok && m.FunctionCall != nil {
+			j, err := json.Marshal(m.FunctionCall)
+			if err != nil {
+				return "", err
+			}
+			msg = fmt.Sprintf("%s %s", msg, string(j))
+		}
+		result = append(result, msg)
+	}
+	return strings.Join(result, "\n"), nil
+}
+
+func getMessageRole(m ChatMessage, humanPrefix, aiPrefix string) (string, error) {
+	var role string
+	switch m.GetType() {
+	case ChatMessageTypeHuman:
+		role = humanPrefix
+	case ChatMessageTypeAI:
+		role = aiPrefix
+	case ChatMessageTypeSystem:
+		role = "system"
+	case ChatMessageTypeGeneric:
+		cgm, ok := m.(GenericChatMessage)
+		if !ok {
+			return "", fmt.Errorf("%w -%+v", ErrUnexpectedChatMessageType, m)
+		}
+		role = cgm.Role
+	case ChatMessageTypeFunction:
+		role = "function"
+	case ChatMessageTypeTool:
+		role = "tool"
+	default:
+		return "", ErrUnexpectedChatMessageType
+	}
+	return role, nil
+}
