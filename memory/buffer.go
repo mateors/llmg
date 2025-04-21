@@ -23,7 +23,7 @@ type ConversationBuffer struct {
 
 var _ schema.Memory = &ConversationBuffer{}
 
-func NewConversionBuffer(options ...ConversationBufferOption) *ConversationBuffer {
+func NewConversationBuffer(options ...ConversationBufferOption) *ConversationBuffer {
 	return applyBufferOptions(options...)
 }
 
