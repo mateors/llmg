@@ -35,6 +35,23 @@ func WithFormat(format string) Option {
 	}
 }
 
+// WithSystem Set the system prompt. This is only valid if
+// WithCustomTemplate is not set and the ollama model use
+// .System in its model template OR if WithCustomTemplate
+// is set using {{.System}}.
+func WithSystemPrompt(p string) Option {
+	return func(opts *options) {
+		opts.system = p
+	}
+}
+
+// WithCustomTemplate To override the templating done on Ollama model side.
+func WithCustomTemplate(template string) Option {
+	return func(opts *options) {
+		opts.customModelTemplate = template
+	}
+}
+
 // WithServerURL Set the URL of the ollama instance to use.
 func WithServerURL(rawURL string) Option {
 	return func(opts *options) {
@@ -43,5 +60,12 @@ func WithServerURL(rawURL string) Option {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+}
+
+// WithRunnerEmbeddingOnly Only return the embbeding.
+func WithRunnerEmbeddingOnly(val bool) Option {
+	return func(opts *options) {
+		opts.ollamaOptions.EmbeddingOnly = val
 	}
 }

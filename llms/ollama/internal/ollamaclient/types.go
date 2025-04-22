@@ -2,6 +2,7 @@ package ollamaclient
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -63,6 +64,17 @@ type Metrics struct {
 	EvalDuration       time.Duration `json:"eval_duration,omitempty"`
 }
 
+type EmbeddingRequest struct {
+	Model     string  `json:"model"`
+	Prompt    string  `json:"prompt"`
+	Options   Options `json:"options"`
+	KeepAlive string  `json:"keep_alive,omitempty"`
+}
+
+type EmbeddingResponse struct {
+	Embedding []float32 `json:"embedding"`
+}
+
 type GenerateResponse struct {
 	CreatedAt          time.Time     `json:"created_at"`
 	Model              string        `json:"model"`
@@ -75,6 +87,35 @@ type GenerateResponse struct {
 	EvalCount          int           `json:"eval_count,omitempty"`
 	EvalDuration       time.Duration `json:"eval_duration,omitempty"`
 	Done               bool          `json:"done"`
+}
+
+func (r *GenerateResponse) Summary() {
+	if r.TotalDuration > 0 {
+		fmt.Fprintf(os.Stderr, "total duration:       %v\n", r.TotalDuration)
+	}
+
+	if r.LoadDuration > 0 {
+		fmt.Fprintf(os.Stderr, "load duration:        %v\n", r.LoadDuration)
+	}
+
+	if r.PromptEvalCount > 0 {
+		fmt.Fprintf(os.Stderr, "prompt eval count:    %d token(s)\n", r.PromptEvalCount)
+	}
+
+	if r.PromptEvalDuration > 0 {
+		fmt.Fprintf(os.Stderr, "prompt eval duration: %s\n", r.PromptEvalDuration)
+		fmt.Fprintf(os.Stderr, "prompt eval rate:     %.2f tokens/s\n",
+			float64(r.PromptEvalCount)/r.PromptEvalDuration.Seconds())
+	}
+
+	if r.EvalCount > 0 {
+		fmt.Fprintf(os.Stderr, "eval count:           %d token(s)\n", r.EvalCount)
+	}
+
+	if r.EvalDuration > 0 {
+		fmt.Fprintf(os.Stderr, "eval duration:        %s\n", r.EvalDuration)
+		fmt.Fprintf(os.Stderr, "eval rate:            %.2f tokens/s\n", float64(r.EvalCount)/r.EvalDuration.Seconds())
+	}
 }
 
 type ChatResponse struct {
