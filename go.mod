@@ -6,9 +6,11 @@ require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.4
+	github.com/ledongthuc/pdf v0.0.0-20240201131950-da5b75280b06
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/nikolalohinski/gonja v1.5.3
 	github.com/pgvector/pgvector-go v0.3.0
+	github.com/pkoukk/tiktoken-go v0.1.7
 	go.starlark.net v0.0.0-20250417143717-f57e51f710eb
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 )
@@ -17,6 +19,7 @@ require (
 	dario.cat/mergo v1.0.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.3.0 // indirect
+	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
