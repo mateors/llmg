@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -17,6 +18,22 @@ import (
 type Client struct {
 	base       *url.URL
 	httpClient *http.Client
+}
+
+func checkError(resp *http.Response, body []byte) error {
+	if resp.StatusCode < http.StatusBadRequest {
+		return nil
+	}
+
+	apiError := StatusError{StatusCode: resp.StatusCode}
+
+	err := json.Unmarshal(body, &apiError)
+	if err != nil {
+		// Use the full body as the message if we fail to decode a response.
+		apiError.ErrorMessage = string(body)
+	}
+
+	return apiError
 }
 
 func NewClient(ourl *url.URL, ohttp *http.Client) (*Client, error) {
@@ -55,6 +72,52 @@ func NewClient(ourl *url.URL, ohttp *http.Client) (*Client, error) {
 	}
 
 	return &client, nil
+}
+
+func (c *Client) do(ctx context.Context, method, path string, reqData, respData any) error {
+	var reqBody io.Reader
+	var data []byte
+	var err error
+	if reqData != nil {
+		data, err = json.Marshal(reqData)
+		if err != nil {
+			return err
+		}
+		reqBody = bytes.NewReader(data)
+	}
+
+	requestURL := c.base.JoinPath(path)
+	request, err := http.NewRequestWithContext(ctx, method, requestURL.String(), reqBody)
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json")
+	request.Header.Set("User-Agent",
+		fmt.Sprintf("langchaingo/ (%s %s) Go/%s", runtime.GOARCH, runtime.GOOS, runtime.Version()))
+
+	respObj, err := c.httpClient.Do(request)
+	if err != nil {
+		return err
+	}
+	defer respObj.Body.Close()
+
+	respBody, err := io.ReadAll(respObj.Body)
+	if err != nil {
+		return err
+	}
+
+	if err := checkError(respObj, respBody); err != nil {
+		return err
+	}
+
+	if len(respBody) > 0 && respData != nil {
+		if err := json.Unmarshal(respBody, respData); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 const maxBufferSize = 512 * 1000
