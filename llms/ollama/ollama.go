@@ -165,6 +165,38 @@ func (o *LLM) GenerateContent(ctx context.Context, messages []llms.MessageConten
 	return response, nil
 }
 
+func (o *LLM) CreateEmbedding(ctx context.Context, inputTexts []string) ([][]float32, error) {
+
+	embeddings := [][]float32{}
+
+	for _, input := range inputTexts {
+		req := &ollamaclient.EmbeddingRequest{
+			Prompt: input,
+			Model:  o.options.model,
+		}
+		if o.options.keepAlive != "" {
+			req.KeepAlive = o.options.keepAlive
+		}
+
+		embedding, err := o.client.CreateEmbedding(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(embedding.Embedding) == 0 {
+			return nil, ErrEmptyResponse
+		}
+
+		embeddings = append(embeddings, embedding.Embedding)
+	}
+
+	if len(inputTexts) != len(embeddings) {
+		return embeddings, ErrIncompleteEmbedding
+	}
+
+	return embeddings, nil
+}
+
 func typeToRole(typ llms.ChatMessageType) string {
 	switch typ {
 	case llms.ChatMessageTypeSystem:
