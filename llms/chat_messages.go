@@ -45,7 +45,7 @@ type ChatMessage interface {
 var (
 	_ ChatMessage = AIChatMessage{}
 	_ ChatMessage = HumanChatMessage{}
-	//_ ChatMessage = SystemChatMessage{}
+	_ ChatMessage = SystemChatMessage{}
 	_ ChatMessage = GenericChatMessage{}
 	//_ ChatMessage = FunctionChatMessage{}
 	//_ ChatMessage = ToolChatMessage{}
@@ -77,6 +77,14 @@ type HumanChatMessage struct {
 
 func (m HumanChatMessage) GetType() ChatMessageType { return ChatMessageTypeHuman }
 func (m HumanChatMessage) GetContent() string       { return m.Content }
+
+// SystemChatMessage is a chat message representing information that should be instructions to the AI system.
+type SystemChatMessage struct {
+	Content string
+}
+
+func (m SystemChatMessage) GetType() ChatMessageType { return ChatMessageTypeSystem }
+func (m SystemChatMessage) GetContent() string       { return m.Content }
 
 // GenericChatMessage is a chat message with an arbitrary speaker.
 type GenericChatMessage struct {
